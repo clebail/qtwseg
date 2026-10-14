@@ -4,9 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core gui widgets opengl openglwidgets
 
 TARGET = qtwseg
 TEMPLATE = app
@@ -22,22 +20,27 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11
+CONFIG += c++17
 
 SOURCES += \
         main.cpp \
         CMainWindow.cpp \
         C3dView.cpp \
-    CCouche.cpp
+        CCouche.cpp \
+        CBSpline.cpp \
+        CVase.cpp \
+        CProfileEditor.cpp \
+        CExport.cpp
 
 HEADERS += \
         CMainWindow.h \
         C3dView.h \
-    common.h \
-    CCouche.h
-
-FORMS += \
-        CMainWindow.ui
+        common.h \
+        CCouche.h \
+        CBSpline.h \
+        CVase.h \
+        CProfileEditor.h \
+        CExport.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

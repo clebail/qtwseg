@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "params": {
+        "layerHeight": 19,
+        "wallThickness": 12,
+        "turningMargin": 3,
+        "bottomThickness": 0,
+        "defaultSegments": 16
+    },
+    "points": [
+        [115, 0],
+        [118, 40],
+        [85, 140],
+        [60, 260],
+        [70, 340],
+        [125, 410],
+        [152, 500],
+        [150, 600]
+    ],
+    "segments": {}
+}

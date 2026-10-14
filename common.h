@@ -2,11 +2,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 //-----------------------------------------------------------------------------------------------
-#define NBFACE                  6
-#define NBSOMMET                4
-#define DIMENSION               3
-#define UNIT                    0.5f
-#define NB_FACE_SEGMENT         4
+#define PI                      3.14159265358979323846
+#define NB_SAMPLES_PROFIL       1000        // nombre de points d'échantillonnage de la B-spline
+#define MIN_SEGMENTS            3
+#define MAX_SEGMENTS            72
 //-----------------------------------------------------------------------------------------------
 #endif // COMMON_H
 //-----------------------------------------------------------------------------------------------

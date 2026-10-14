@@ -1,0 +1,152 @@
+name: Binaires
+
+# Une version publiée = un tag "v*" poussé (ex. v1.0.0).
+# Le lancement manuel (onglet Actions) compile seulement, et laisse les binaires en artefacts.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  QT_VERSION: '6.9.3'
+
+jobs:
+  macos:
+    name: macOS (universel)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          target: desktop
+          arch: clang_64
+          cache: true
+
+      - name: Compilation
+        run: |
+          mkdir build && cd build
+          qmake ../qtwseg.pro CONFIG+=release QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"
+          make -j"$(sysctl -n hw.ncpu)"
+
+      - name: Paquet .dmg
+        run: |
+          cd build
+          macdeployqt qtwseg.app -dmg
+          mv qtwseg.dmg "QtWSeg-${{ github.ref_name }}-macos.dmg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: build/QtWSeg-*-macos.dmg
+
+  windows:
+    name: Windows x64
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Compilation
+        shell: pwsh
+        run: |
+          mkdir build
+          cd build
+          qmake ../qtwseg.pro CONFIG+=release
+          nmake
+
+      - name: Paquet .zip
+        shell: pwsh
+        run: |
+          $dist = "QtWSeg"
+          New-Item -ItemType Directory $dist | Out-Null
+          Copy-Item build/release/qtwseg.exe $dist/
+          windeployqt --release --no-translations $dist/qtwseg.exe
+          # Runtime MSVC, pour les machines où il n'est pas installé
+          Get-ChildItem "$env:VCToolsRedistDir\x64\Microsoft.VC*.CRT\*.dll" | Copy-Item -Destination $dist
+          Copy-Item README.md, LICENSE $dist/
+          Compress-Archive -Path $dist -DestinationPath "QtWSeg-${{ github.ref_name }}-windows-x64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: QtWSeg-*-windows-x64.zip
+
+  linux:
+    name: Linux x86_64 (AppImage)
+    # Distribution ancienne volontairement : l'AppImage fonctionnera sur les glibc plus récentes
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dépendances système
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libfuse2 libxkbcommon-x11-0 libxcb-cursor0 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+            libxcb-shape0 libxcb-xinerama0 libxcb-xkb1
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+
+      - name: Compilation
+        run: |
+          mkdir build && cd build
+          qmake ../qtwseg.pro CONFIG+=release
+          make -j"$(nproc)"
+
+      - name: Paquet AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          OUTPUT: QtWSeg-${{ github.ref_name }}-linux-x86_64.AppImage
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+          export QMAKE="$(which qmake)"
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir \
+            --executable build/qtwseg \
+            --desktop-file packaging/qtwseg.desktop \
+            --icon-file packaging/qtwseg.png \
+            --plugin qt \
+            --output appimage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: QtWSeg-*-linux-x86_64.AppImage
+
+  release:
+    name: Publication
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [macos, windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

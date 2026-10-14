@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=QtWSeg
+Comment=Conception de pièces tournées segmentées
+Exec=qtwseg
+Icon=qtwseg
+Categories=Graphics;Engineering;
+Terminal=false

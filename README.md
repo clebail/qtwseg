@@ -2,6 +2,11 @@
 
 **QtWSeg** aide à préparer le **tournage segmenté** (*segmented woodturning*) : on dessine le profil d'un vase, d'un bol ou d'un djembé avec une courbe B-spline, et le programme calcule couche par couche les segments à découper (nombre, angle d'onglet, longueurs, largeur de planche) pour reconstituer la pièce.
 
+[![Binaires](https://github.com/clebail/qtwseg/actions/workflows/release.yml/badge.svg)](https://github.com/clebail/qtwseg/actions/workflows/release.yml)
+[![Licence : Unlicense](https://img.shields.io/badge/licence-Unlicense-blue.svg)](LICENSE)
+
+**[⬇️ Télécharger la dernière version](https://github.com/clebail/qtwseg/releases/latest)** pour macOS, Windows ou Linux : aucune installation de Qt n'est nécessaire.
+
 ![Capture de QtWSeg : éditeur de profil, aperçu 3D et plan de découpe](docs/capture.png)
 
 ---
@@ -108,9 +113,21 @@ longueur planche  = N · (L ext + L int) / 2
 
 ---
 
+## Installation
+
+Téléchargez le fichier correspondant à votre système sur la [page des versions](https://github.com/clebail/qtwseg/releases/latest) :
+
+| Système | Fichier | Remarque |
+|---|---|---|
+| macOS (Intel et Apple Silicon) | `QtWSeg-…-macos.dmg` | Application non signée : au premier lancement, faites **clic droit → Ouvrir** |
+| Windows 10/11 (64 bits) | `QtWSeg-…-windows-x64.zip` | Décompressez, puis lancez `qtwseg.exe` |
+| Linux (x86_64) | `QtWSeg-…-linux-x86_64.AppImage` | Rendez le fichier exécutable (`chmod +x`), puis lancez-le |
+
+---
+
 ## Compilation
 
-Le projet nécessite **Qt 6** (modules `widgets`, `opengl` et `openglwidgets`) et un compilateur C++17.
+Le projet nécessite **Qt 6.9 ou plus récent** (modules `widgets`, `opengl` et `openglwidgets`) et un compilateur C++17.
 
 ### macOS (Homebrew)
 ```sh
@@ -132,6 +149,17 @@ make
 Ouvrir `qtwseg.pro` dans **Qt Creator** (Qt 6) et compiler.
 
 > 💡 Pour garder les sources propres, compilez dans un dossier séparé : `mkdir build && cd build && qmake6 ../qtwseg.pro && make`.
+
+### Publier une version
+
+Les binaires sont fabriqués par GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)). Pousser un tag `v*` compile les trois plateformes et publie automatiquement une *Release* :
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Le workflow peut aussi être lancé à la main depuis l'onglet **Actions**. Dans ce cas, les binaires sont seulement disponibles en artefacts, sans *Release* publiée.
 
 ---
 

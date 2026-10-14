@@ -3,6 +3,8 @@ moc_*.*
 ui_*.*
 qrc_*.*
 Makefile
-qtwseg*
+/qtwseg
+/qtwseg.app/
+/qtwseg.exe
 .qmake.stash
 build/
